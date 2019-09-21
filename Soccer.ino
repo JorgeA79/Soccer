@@ -1,9 +1,16 @@
 #include <Wire.h>
 
-int DB = 8;   //  Derecha Atras    //
-int DF = 7;   //  Derecha Frente   //
-int IB = 6;   //  Izquierda Atras  //
-int IF = 5;   //  Izquierda Frente //
+int IN1 = 12; //12
+int IN2 = 13; //13
+int IN3 = 10; //10
+int IN4 = 11; //11
+
+int IN5 = 6;
+int IN6 = 7;
+int IN7 = 4;
+int IN8 = 5;
+
+
 
 
 struct InfraredResult
@@ -137,18 +144,23 @@ void setup()
 
 
   //Llantas
+ pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
 
-  pinMode(DB,OUTPUT); // Llanta Derecha Atras    //
-  pinMode(DF,OUTPUT); // Llanta Derecha Frente   //
-  pinMode(IB,OUTPUT); // Llanta Izquierda Atras  //
-  pinMode(IF,OUTPUT); // Llanta Izquierda Frente //
-
-
+ pinMode(IN5, OUTPUT);
+  pinMode(IN6, OUTPUT);
+  pinMode(IN7, OUTPUT);
+  pinMode(IN8, OUTPUT);
+  
   
 }
 
 void loop()
 {   
+  
+  Serial.print("");
   InfraredResult InfraredBall = InfraredSeeker::ReadAC();
   Serial.print(InfraredBall.Direction);
   Serial.print("\t");
@@ -157,8 +169,7 @@ void loop()
   Serial.print(InfraredBall.Strength);
   Serial.println();
   delay(100);
-  Serial.println(millis()/1000);
-
+  
 
   //Seguir
   
@@ -169,45 +180,93 @@ void loop()
   else {
     if(InfraredBall.Strength>0){
         Adelante(); 
+       
+        Serial.println("Adelante");
     }
+    
     else {
+      
       Detenerse();
+      Serial.println("Detenerse");
        delay(30);
     }
   }
   
 }
 
+
+
+
 // Movimientos
 
 void Adelante(){
+  
+  digitalWrite(IN1, LOW);  //Derecha Delante Atras
+  digitalWrite(IN2, HIGH); //Derecha Delante Avanzar
+  digitalWrite(IN3, LOW);  //Izquierda Delante Atras
+  digitalWrite(IN4, HIGH); //Izquierda Delante Avanzar
 
-  digitalWrite(DB,LOW);
-  digitalWrite(DF,HIGH);
-  digitalWrite(LB,LOW);
-  digitalWrite(LF,HIGH);
+  digitalWrite(IN5, HIGH);  //Izquiera Atras Avanzar
+  digitalWrite(IN6, LOW);  //Izquieda Atras Atras
+  digitalWrite(IN7, HIGH); //Derecha Atras Avanzar
+  digitalWrite(IN8, LOW);  //Derecha Atras Atras
+
+
 }
 
 void Detenerse(){
-  digitalWrite(DB, LOW);
-  digitalWrite(DF, LOW);
-  digitalWrite(LB, LOW);
-  digitalWrite(LF, LOW);
+
+
+ digitalWrite(IN1, LOW);  //Derecha Delante Atras
+  digitalWrite(IN2, LOW); //Derecha Delante Avanzar
+  digitalWrite(IN3, LOW);  //Izquierda Delante Atras
+  digitalWrite(IN4, LOW); //Izquierda Delante Avanzar
+
+  digitalWrite(IN5, LOW);  //Izquiera Atras Avanzar
+  digitalWrite(IN6, LOW);  //Izquieda Atras Atras
+  digitalWrite(IN7, LOW); //Derecha Atras Avanzar
+  digitalWrite(IN8, LOW);  //Derecha Atras Atras
+
+
+  
 }
 
+
 void GirarDerecha(){
-  digitalWrite(DB,LOW);
-  digitalWrite(DF,HIGH);
-  digitalWrite(LB,  HIGH);
-  digitalWrite(LF,LOW);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+  
+    digitalWrite(IN5, HIGH);
+  digitalWrite(IN6, LOW);
+  digitalWrite(IN7, LOW);
+  digitalWrite(IN8, HIGH);
+
+
+  digitalWrite(IN5, LOW);
+  digitalWrite(IN6, LOW);
+  digitalWrite(IN7, LOW);
+  digitalWrite(IN8, HIGH);
+
+
 }
 
 void GirarIzquierda(){
-  digitalWrite(DB,HIGH);
-  digitalWrite(DF,LOW);
-  digitalWrite(LB,LOW);
-  digitalWrite(LF,HIGH);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+  
+    digitalWrite(IN5, HIGH);
+  digitalWrite(IN6, LOW);
+  digitalWrite(IN7, LOW);
+  digitalWrite(IN8, HIGH);
+
+
+  digitalWrite(IN5, LOW);
+  digitalWrite(IN6, LOW);
+  digitalWrite(IN7, LOW);
+  digitalWrite(IN8, HIGH);
+
 }
-
-
-
