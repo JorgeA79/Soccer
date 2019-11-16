@@ -4,12 +4,8 @@ int IN1 = 12; //12
 int IN2 = 13; //13
 int IN3 = 10; //10
 int IN4 = 11; //11
-
-int IN5 = 6;
-int IN6 = 7;
-int IN7 = 4;
-int IN8 = 5;
-
+int ENA = 3;
+int ENB = 2;
 
 
 
@@ -149,18 +145,15 @@ void setup()
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
 
- pinMode(IN5, OUTPUT);
-  pinMode(IN6, OUTPUT);
-  pinMode(IN7, OUTPUT);
-  pinMode(IN8, OUTPUT);
+   pinMode(ENA, OUTPUT);
+  pinMode(ENB, OUTPUT);
   
-  
+ 
 }
 
 void loop()
 {   
-  
-  Serial.print("");
+   Serial.print("");
   InfraredResult InfraredBall = InfraredSeeker::ReadAC();
   Serial.print(InfraredBall.Direction);
   Serial.print("\t");
@@ -168,105 +161,107 @@ void loop()
   Serial.print("\t");
   Serial.print(InfraredBall.Strength);
   Serial.println();
-  delay(100);
-  
+ 
 
-  //Seguir
-  
-  if(InfraredBall.Direction!=5){  
-    if(InfraredBall.Direction<5)GirarIzquierda();
-    else if(InfraredBall.Direction>5)GirarDerecha();
-  }
-  else {
-    if(InfraredBall.Strength>0){
-        Adelante(); 
-       
-        Serial.println("Adelante");
-    }
+if(InfraredBall.Strength<200){   
+  Seguir();
+}else
+{
+  if(InfraredBall.Strength>230){
+    Patear();
     
-    else {
-      
-      Detenerse();
-      Serial.println("Detenerse");
-       delay(30);
-    }
   }
-  
+} 
+ if(InfraredBall.Direction==0){
+     if(InfraredBall.Direction>0)GirarIzquierda(80, 85);
+   }
+ else Adelante(120, 125);
 }
-
-
-
+ 
 
 // Movimientos
 
-void Adelante(){
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void Seguir(){                                                                                             //
+  InfraredResult InfraredBall = InfraredSeeker::ReadAC();                                                  //   
+
   
-  digitalWrite(IN1, LOW);  //Derecha Delante Atras
-  digitalWrite(IN2, HIGH); //Derecha Delante Avanzar
-  digitalWrite(IN3, LOW);  //Izquierda Delante Atras
-  digitalWrite(IN4, HIGH); //Izquierda Delante Avanzar
+  if(InfraredBall.Direction!=5){  
+    
+     if(InfraredBall.Direction<5 && InfraredBall.Strength>0)GirarIzquierda(80, 85);
+     else if(InfraredBall.Direction>5 && InfraredBall.Strength>0)GirarDerecha(80, 85);
+    }
+    else {
+      if(InfraredBall.Strength>0){
+         Adelante(120, 125); 
+         //Serial.println("Adelante");
+      }
+    }
+    if(InfraredBall.Direction==0){
+     if(InfraredBall.Direction>0)GirarIzquierda(80, 85);
+   }
+ else Adelante(120, 125);
+}                                                                                                        // 
+                                                                                                         //  
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+void Patear(){                                                                                           //
+                                                                                                         // 
+                                                                                                       
+InfraredResult InfraredBall = InfraredSeeker::ReadAC(); 
+Detras(120,125);
+delay(300);
 
-  digitalWrite(IN5, HIGH);  //Izquiera Atras Avanzar
-  digitalWrite(IN6, LOW);  //Izquieda Atras Atras
-  digitalWrite(IN7, HIGH); //Derecha Atras Avanzar
-  digitalWrite(IN8, LOW);  //Derecha Atras Atras
+if(InfraredBall.Direction!=5){  
+  delay(100);
+     if(InfraredBall.Direction<5 && InfraredBall.Strength>0)GirarIzquierda(80, 150);
+     else if(InfraredBall.Direction>5 && InfraredBall.Strength>0)GirarDerecha(150, 80);
+    }
+    else {
+      if(InfraredBall.Strength>230){    
+Adelante(150,255);
+      }}
+      
+delay(1500); 
 
+ }                                                                                                       //   
+                                                                                                         //  
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-}
-
-void Detenerse(){
-
-
- digitalWrite(IN1, LOW);  //Derecha Delante Atras
+void Adelante(int vi, int vd){
+    analogWrite(ENA, vi);
+  analogWrite(ENB, vd);
+  digitalWrite(IN1, HIGH);  //Derecha Delante Atras
   digitalWrite(IN2, LOW); //Derecha Delante Avanzar
-  digitalWrite(IN3, LOW);  //Izquierda Delante Atras
+  digitalWrite(IN3, HIGH);  //Izquierda Delante Atras
   digitalWrite(IN4, LOW); //Izquierda Delante Avanzar
-
-  digitalWrite(IN5, LOW);  //Izquiera Atras Avanzar
-  digitalWrite(IN6, LOW);  //Izquieda Atras Atras
-  digitalWrite(IN7, LOW); //Derecha Atras Avanzar
-  digitalWrite(IN8, LOW);  //Derecha Atras Atras
-
-
-  
+  delay(30);
 }
 
-
-void GirarDerecha(){
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, LOW);
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, LOW);
-  
-    digitalWrite(IN5, HIGH);
-  digitalWrite(IN6, LOW);
-  digitalWrite(IN7, LOW);
-  digitalWrite(IN8, HIGH);
-
-
-  digitalWrite(IN5, LOW);
-  digitalWrite(IN6, LOW);
-  digitalWrite(IN7, LOW);
-  digitalWrite(IN8, HIGH);
-
-
+void GirarDerecha(int vi, int vd){
+    analogWrite(ENA, vi);
+  analogWrite(ENB, vd);
+  digitalWrite(IN1, 0);  //Derecha Delante Atras
+  digitalWrite(IN2, 1); //Derecha Delante Avanzar
+  digitalWrite(IN3, 1);  //Izquierda Delante Atras
+  digitalWrite(IN4, 0); //Izquierda Delante Avanzar
+  delay(30);
 }
 
-void GirarIzquierda(){
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, LOW);
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, LOW);
-  
-    digitalWrite(IN5, HIGH);
-  digitalWrite(IN6, LOW);
-  digitalWrite(IN7, LOW);
-  digitalWrite(IN8, HIGH);
-
-
-  digitalWrite(IN5, LOW);
-  digitalWrite(IN6, LOW);
-  digitalWrite(IN7, LOW);
-  digitalWrite(IN8, HIGH);
-
+void GirarIzquierda(int vi, int vd){
+    analogWrite(ENA, vi);
+  analogWrite(ENB, vd);
+  digitalWrite(IN1, 1);  //Derecha Delante Atras
+  digitalWrite(IN2, 0); //Derecha Delante Avanzar
+  digitalWrite(IN3, 0);  //Izquierda Delante Atras
+  digitalWrite(IN4, 1); //Izquierda Delante Avanzar
+  delay(30);
+}
+void Detras(int vi, int vd){
+    analogWrite(ENA, vi);
+  analogWrite(ENB, vd);
+  digitalWrite(IN1, 0);  //Derecha Delante Atras
+  digitalWrite(IN2, 1); //Derecha Delante Avanzar
+  digitalWrite(IN3, 0);  //Izquierda Delante Atras
+  digitalWrite(IN4, 1); //Izquierda Delante Avanzar
+  delay(30);
 }
