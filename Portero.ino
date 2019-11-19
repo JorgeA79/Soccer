@@ -1,9 +1,11 @@
 #include <Wire.h>
+#include<AFMotor.h>
 
-int MOTORIDA = 11, MOTORIDR = 12, MOTORIAA = 10, MOTORIAR = 9; 
-int MOTORDDA = 6, MOTORDDR = 5, MOTORDAA = 3, MOTORDAR = 4; 
-int ena=8 , enb=13;
-int ena1=2, enb1=7;
+AF_DCMotor motor1(1);
+AF_DCMotor motor2(2);
+AF_DCMotor motor3(3);
+AF_DCMotor motor4(4);
+
 
 
 struct InfraredResult
@@ -136,24 +138,6 @@ void setup()
   InfraredSeeker::Initialize();
 
 
-  //Llantas
-
-  pinMode(MOTORIDA, OUTPUT);
-  pinMode(MOTORIDR, OUTPUT);
-  pinMode(MOTORIAA, OUTPUT);
-  pinMode(MOTORIAR, OUTPUT);
-
-  pinMode(ena, OUTPUT);
-  pinMode(enb, OUTPUT);
-  
-  pinMode(MOTORDDA, OUTPUT);
-  pinMode(MOTORDDR, OUTPUT);
-  pinMode(MOTORDAA, OUTPUT);
-  pinMode(MOTORDAR, OUTPUT);
-
-  pinMode(ena1, OUTPUT);
-  pinMode(enb1, OUTPUT);
-  
  
 }
 
@@ -169,18 +153,7 @@ void loop()
   Serial.println();
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   analogWrite(ena, 80);
-  analogWrite(enb, 85);
-  analogWrite(ena1, 80);
-  analogWrite(enb1, 85);
-  digitalWrite(MOTORIDA, 1);
-  digitalWrite(MOTORIDR, 0);
-  digitalWrite(MOTORIAA, 0);
-  digitalWrite(MOTORIAR, 1);
-  digitalWrite(MOTORDDA, 1);
-  digitalWrite(MOTORDDR, 0);
-  digitalWrite(MOTORDAA, 0); 
-  digitalWrite(MOTORDAR, 1);                                                                                
+                                                                               
                                                                                                                                                                                                                    
 
   if(InfraredBall.Direction!=5)
@@ -189,16 +162,18 @@ void loop()
     if(InfraredBall.Direction<5 && InfraredBall.Strength>0)
     {
       Serial.print("Izquierda");
-      GirarIzquierda(80, 85, 80, 85);
+      GirarIzquierda();
       }
     
     else if(InfraredBall.Direction>5 && InfraredBall.Strength>0)
     {
       Serial.print("Derecha");
-      GirarDerecha(80, 85, 80, 85);
+      GirarDerecha();
     }
+    }else{
+      Detenerse();
     }
-   
+
 }    
                                                                                                            //
                                                                                                            //         
@@ -207,49 +182,34 @@ void loop()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Adelante(){
-  analogWrite(ena, 0);
-  analogWrite(enb, 0);
-  analogWrite(ena1, 0);
-  analogWrite(enb1, 0);
-  digitalWrite(MOTORIDA, 0);
-  digitalWrite(MOTORIDR, 0);
-  digitalWrite(MOTORIAA, 0);
-  digitalWrite(MOTORIAR, 0);
-  digitalWrite(MOTORDDA, 0);
-  digitalWrite(MOTORDDR, 0);
-  digitalWrite(MOTORDAA, 0); 
-  digitalWrite(MOTORDAR, 0); 
-  delay(30);
+void Detenerse(){
+ motor1.setSpeed(0);
+motor2.setSpeed(0);
+motor3.setSpeed(0);
+motor4.setSpeed(0);
+
 }
 
-void GirarDerecha(int vi, int vd,int vi1,int vd1){
-  analogWrite(ena, vi);
-  analogWrite(enb, vd);
-  analogWrite(ena1, vi1);
-  analogWrite(enb1, vd1);
-  digitalWrite(MOTORIDA, 1);
-  digitalWrite(MOTORIDR, 0);
-  digitalWrite(MOTORIAA, 0);
-  digitalWrite(MOTORIAR, 1);
-  digitalWrite(MOTORDDA, 1);
-  digitalWrite(MOTORDDR, 0);
-  digitalWrite(MOTORDAA, 0); 
-  digitalWrite(MOTORDAR, 1); 
+void GirarDerecha(){
+ motor1.setSpeed(125);
+motor2.setSpeed(120);
+motor3.setSpeed(120);
+motor4.setSpeed(100);
+motor1.run(FORWARD);
+motor2.run(BACKWARD);
+motor3.run(FORWARD);
+motor4.run(BACKWARD);
+
 }
 
-void GirarIzquierda(int vi, int vd,int vi1,int vd1){
-  
-  analogWrite(ena, vi);
-  analogWrite(enb, vd);
-  analogWrite(ena1, vi1);
-  analogWrite(enb1, vd1);
-  digitalWrite(MOTORIDA, 0);
-  digitalWrite(MOTORIDR, 1);
-  digitalWrite(MOTORIAA, 1);
-  digitalWrite(MOTORIAR, 0);
-  digitalWrite(MOTORDDA, 0);
-  digitalWrite(MOTORDDR, 1);
-  digitalWrite(MOTORDAA, 1); 
-  digitalWrite(MOTORDAR, 0); 
+void GirarIzquierda(){
+   motor1.setSpeed(120);
+motor2.setSpeed(125);
+motor3.setSpeed(100);
+motor4.setSpeed(120);
+motor1.run(BACKWARD);
+motor2.run(FORWARD);
+motor3.run(BACKWARD);
+motor4.run(FORWARD);
+
 }
