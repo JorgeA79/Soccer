@@ -1,13 +1,14 @@
 #include <Wire.h>
+#include<AFMotor.h>
 
-int IN1 = 12; //12
-int IN2 = 13; //13
-int IN3 = 10; //10
-int IN4 = 11; //11
-int ENA = 3;
-int ENB = 2;
+AF_DCMotor motor1(1);
+AF_DCMotor motor2(2);
+AF_DCMotor motor3(3);
+AF_DCMotor motor4(4);
 
-
+double x;
+double y;
+double Angle;
 
 struct InfraredResult
 {
@@ -38,7 +39,7 @@ void InfraredSeeker::Initialize()
   Wire.write(0x00);
   Wire.endTransmission();
   while(Wire.available() > 0)
-    Wire.read();
+  Wire.read();
 }
 
 boolean InfraredSeeker::Test()
@@ -70,7 +71,7 @@ void InfraredSeeker::ReadValues(byte OffsetAddress, byte* buffer)
     buffer[i] = Wire.read();
   }
   while(Wire.available() > 0)
-    Wire.read();
+  Wire.read();
 }
 
 void InfraredSeeker::ReadACRaw(byte* buffer)
@@ -139,15 +140,9 @@ void setup()
   InfraredSeeker::Initialize();
 
 
-  //Llantas
- pinMode(IN1, OUTPUT);
-  pinMode(IN2, OUTPUT);
-  pinMode(IN3, OUTPUT);
-  pinMode(IN4, OUTPUT);
-
-   pinMode(ENA, OUTPUT);
-  pinMode(ENB, OUTPUT);
-  
+  pinMode(13, OUTPUT); //IZQUIERDA
+  pinMode(8, OUTPUT); //ADELANTE
+  pinMode(10, OUTPUT); //DERECHA
  
 }
 
@@ -160,108 +155,132 @@ void loop()
   Serial.print(DirectionAngle(InfraredBall.Direction));
   Serial.print("\t");
   Serial.print(InfraredBall.Strength);
+  Serial.print("\t");
+  x = InfraredBall.Direction - 5;
+  y = 221 - InfraredBall.Strength;
+  Angle = atan2(y, x) * 180 / 3.141592 ;
+  Serial.print(x);
+  Serial.print("\t");
+  Serial.print(y);
+  Serial.print("\t");
+  Serial.print(Angle);
   Serial.println();
- 
-
-if(InfraredBall.Strength<200){   
-  Seguir();
-}else
-{
-  if(InfraredBall.Strength>230){
-    Patear();
-    
-  }
-} 
- if(InfraredBall.Direction==0){
-     if(InfraredBall.Direction>0)GirarIzquierda(80, 85);
-   }
- else Adelante(120, 125);
-}
- 
-
-// Movimientos
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void Seguir(){                                                                                             //
-  InfraredResult InfraredBall = InfraredSeeker::ReadAC();                                                  //   
 
-  
-  if(InfraredBall.Direction!=5){  
-    
-     if(InfraredBall.Direction<5 && InfraredBall.Strength>0)GirarIzquierda(80, 85);
-     else if(InfraredBall.Direction>5 && InfraredBall.Strength>0)GirarDerecha(80, 85);
-    }
-    else {
-      if(InfraredBall.Strength>0){
-         Adelante(120, 125); 
-         //Serial.println("Adelante");
-      }
-    }
-    if(InfraredBall.Direction==0){
-     if(InfraredBall.Direction>0)GirarIzquierda(80, 85);
-   }
- else Adelante(120, 125);
-}                                                                                                        // 
-                                                                                                         //  
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-void Patear(){                                                                                           //
-                                                                                                         // 
-                                                                                                       
-InfraredResult InfraredBall = InfraredSeeker::ReadAC(); 
-Detras(120,125);
-delay(300);
-
-if(InfraredBall.Direction!=5){  
-  delay(100);
-     if(InfraredBall.Direction<5 && InfraredBall.Strength>0)GirarIzquierda(80, 150);
-     else if(InfraredBall.Direction>5 && InfraredBall.Strength>0)GirarDerecha(150, 80);
-    }
-    else {
-      if(InfraredBall.Strength>230){    
-Adelante(150,255);
-      }}
-      
-delay(1500); 
-
- }                                                                                                       //   
-                                                                                                         //  
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Adelante(int vi, int vd){
-    analogWrite(ENA, vi);
-  analogWrite(ENB, vd);
-  digitalWrite(IN1, HIGH);  //Derecha Delante Atras
-  digitalWrite(IN2, LOW); //Derecha Delante Avanzar
-  digitalWrite(IN3, HIGH);  //Izquierda Delante Atras
-  digitalWrite(IN4, LOW); //Izquierda Delante Avanzar
-  delay(30);
+if(InfraredBall.Strength > 100){ 
+if(InfraredBall.Strength > 65){ 
+if(InfraredBall.Strength < 170){
+  if(InfraredBall.Direction==5){
+    Adelante();
+  }
+  if(InfraredBall.Direction<5 || InfraredBall.Direction==0){
+      GirarIzquierda();
+}
+if(InfraredBall.Direction>5){
+      GirarDerecha(); }
+}else{
+  Adelante();
+       digitalWrite(13, 1);   
+      digitalWrite(8, 1);
+      digitalWrite(10,1);
+}
+}
+}else if(InfraredBall.Direction==5){
+ MoverIzquierda();
+}else if(InfraredBall.Direction==7){
+ MoverDerecha();
+}else if(InfraredBall.Direction==6){
+ Adelante();
+ }else if(InfraredBall.Direction==0){
+ GirarIzquierda();
+}else if(InfraredBall.Strength > 65){
+ Adelante();
+}
 }
 
-void GirarDerecha(int vi, int vd){
-    analogWrite(ENA, vi);
-  analogWrite(ENB, vd);
-  digitalWrite(IN1, 0);  //Derecha Delante Atras
-  digitalWrite(IN2, 1); //Derecha Delante Avanzar
-  digitalWrite(IN3, 1);  //Izquierda Delante Atras
-  digitalWrite(IN4, 0); //Izquierda Delante Avanzar
-  delay(30);
+                                                                                                           //
+                                                                                                           //         
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Detenerse(){
+motor1.run(RELEASE);
+motor2.run(RELEASE);
+motor3.run(RELEASE);
+motor4.run(RELEASE);
+delay(30);
+}
+void Adelante(){
+motor1.setSpeed(10);
+motor2.setSpeed(255);
+motor3.setSpeed(130);
+motor4.setSpeed(115);
+motor1.run(FORWARD);
+motor2.run(FORWARD);
+motor3.run(FORWARD);
+motor4.run(FORWARD);
+digitalWrite(13, 0);   
+digitalWrite(8, 0);
+digitalWrite(10, 1);
+
+}
+void GirarDerecha(){
+motor1.setSpeed(120);
+motor2.setSpeed(120);
+motor3.setSpeed(120);
+motor4.setSpeed(120);
+motor1.run(FORWARD);
+motor2.run(BACKWARD);
+motor3.run(BACKWARD);
+motor4.run(FORWARD);
+digitalWrite(13, 0);   
+digitalWrite(8, 1);
+digitalWrite(10, 0);
+
 }
 
-void GirarIzquierda(int vi, int vd){
-    analogWrite(ENA, vi);
-  analogWrite(ENB, vd);
-  digitalWrite(IN1, 1);  //Derecha Delante Atras
-  digitalWrite(IN2, 0); //Derecha Delante Avanzar
-  digitalWrite(IN3, 0);  //Izquierda Delante Atras
-  digitalWrite(IN4, 1); //Izquierda Delante Avanzar
-  delay(30);
+void GirarIzquierda(){
+motor1.setSpeed(120);
+motor2.setSpeed(120);
+motor3.setSpeed(120);
+motor4.setSpeed(150);
+motor1.run(BACKWARD);
+motor2.run(FORWARD);
+motor3.run(FORWARD);
+motor4.run(BACKWARD);
+digitalWrite(13, 1);   
+digitalWrite(8, 0);
+digitalWrite(10, 0);
+
 }
-void Detras(int vi, int vd){
-    analogWrite(ENA, vi);
-  analogWrite(ENB, vd);
-  digitalWrite(IN1, 0);  //Derecha Delante Atras
-  digitalWrite(IN2, 1); //Derecha Delante Avanzar
-  digitalWrite(IN3, 0);  //Izquierda Delante Atras
-  digitalWrite(IN4, 1); //Izquierda Delante Avanzar
-  delay(30);
+void MoverIzquierda(){
+motor1.setSpeed(120);
+motor2.setSpeed(255);
+motor3.setSpeed(220);
+motor4.setSpeed(255);
+motor1.run(FORWARD);
+motor2.run(BACKWARD);
+motor3.run(FORWARD);
+motor4.run(BACKWARD);
+digitalWrite(13, 1);   
+digitalWrite(8, 0);
+digitalWrite(10, 0);
+
+}
+void MoverDerecha(){
+motor1.setSpeed(120);
+motor2.setSpeed(230);
+motor3.setSpeed(255);
+motor4.setSpeed(255);
+motor1.run(BACKWARD);
+motor2.run(FORWARD);
+motor3.run(BACKWARD);
+motor4.run(FORWARD);
+digitalWrite(13, 1);   
+digitalWrite(8, 0);
+digitalWrite(10, 0);
+
 }
